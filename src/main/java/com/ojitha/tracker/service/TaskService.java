@@ -2,6 +2,7 @@ package com.ojitha.tracker.service;
 
 import com.ojitha.tracker.dto.TaskRequest;
 import com.ojitha.tracker.dto.TaskResponse;
+import com.ojitha.tracker.dto.TaskStatsResponse;
 import com.ojitha.tracker.entity.Task;
 import com.ojitha.tracker.entity.TaskHistory;
 import com.ojitha.tracker.entity.TaskHistory.TaskStatus;
@@ -68,6 +69,19 @@ public class TaskService {
         history.setCompletedTime(java.time.LocalDateTime.now());
         taskHistoryRepository.save(history);
         return mapToResponse(task, TaskStatus.COMPLETED);
+    }
+
+    public TaskStatsResponse getTaskStats(Long taskId, String email) {
+        Task task = taskRepository.findById(taskId)
+                .orElseThrow(() -> new RuntimeException("Task not found"));
+        List<TaskHistory> history = taskHistoryRepository.findByTaskId(taskId);
+        long completedCount = history.stream()
+                .filter(h -> h.getStatus() == TaskStatus.COMPLETED)
+                .count();
+        long missedCount = history.stream()
+                .filter(h -> h.getStatus() == TaskStatus.MISSED)
+                .count();
+        return new TaskStatsResponse(task.getId(), task.getTitle(), completedCount, missedCount);
     }
 
     private TaskStatus computeStatus(Task task) {
