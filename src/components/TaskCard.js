@@ -1,85 +1,49 @@
-import React, { useState } from 'react';
-import api from '../api/axios';
-
-const statusEmoji = {
-  PENDING: '🟡',
-  COMPLETED: '🟢',
-  MISSED: '🔴',
-};
-
-const statusColor = {
-  PENDING: '#fff8e1',
-  COMPLETED: '#e8f5e9',
-  MISSED: '#ffebee',
-};
+import React, { useState } from "react";
+import api from "../api/axios";
 
 function TaskCard({ task, onComplete }) {
   const [stats, setStats] = useState(null);
   const [showStats, setShowStats] = useState(false);
 
+  const statusClass = task.todayStatus ? task.todayStatus.toLowerCase() : "pending";
+
+  const statusLabel = {
+    PENDING: "🟡 Pending",
+    COMPLETED: "🟢 Completed",
+    MISSED: "🔴 Missed",
+  };
+
   const handleStats = async () => {
-    if (showStats) {
-      setShowStats(false);
-      return;
-    }
-    const res = await api.get('/tasks/' + task.id + '/stats');
+    if (showStats) { setShowStats(false); return; }
+    const res = await api.get("/tasks/" + task.id + "/stats");
     setStats(res.data);
     setShowStats(true);
   };
 
   return (
-    <div style={{
-      background: statusColor[task.todayStatus],
-      border: '1px solid #ddd',
-      borderRadius: '8px',
-      padding: '16px',
-      marginBottom: '12px',
-      width: '300px',
-    }}>
-      <h3 style={{ margin: '0 0 8px 0' }}>{task.scheduledTime}</h3>
-      <p style={{ margin: '0 0 8px 0', fontWeight: 'bold' }}>{task.title}</p>
-      <p style={{ margin: '0 0 12px 0' }}>{task.description}</p>
-      <p>Status: {statusEmoji[task.todayStatus]} {task.todayStatus}</p>
-      {task.todayStatus === 'PENDING' && (
-        <button
-          onClick={() => onComplete(task.id)}
-          style={{
-            background: '#4caf50',
-            color: 'white',
-            border: 'none',
-            padding: '8px 16px',
-            borderRadius: '4px',
-            cursor: 'pointer',
-            marginRight: '8px',
-          }}
-        >
-          Complete
+    <div className={`task-card ${statusClass}`}>
+      <div className="task-time">{task.scheduledTime}</div>
+      <div className="task-title">{task.title}</div>
+      {task.description && <div className="task-desc">{task.description}</div>}
+      <div className="task-status">{statusLabel[task.todayStatus]}</div>
+      <div className="task-actions">
+        {task.todayStatus === "PENDING" && (
+          <button className="btn-success" onClick={() => onComplete(task.id)}>Complete</button>
+        )}
+        <button className="btn-primary" onClick={handleStats}>
+          {showStats ? "Hide Stats" : "📊 Stats"}
         </button>
-      )}
-      <button
-        onClick={handleStats}
-        style={{
-          background: '#1976d2',
-          color: 'white',
-          border: 'none',
-          padding: '8px 16px',
-          borderRadius: '4px',
-          cursor: 'pointer',
-          marginTop: '8px',
-        }}
-      >
-        {showStats ? 'Hide Stats' : '📊 Stats'}
-      </button>
+      </div>
       {showStats && stats && (
-        <div style={{
-          marginTop: '12px',
-          padding: '12px',
-          background: 'white',
-          borderRadius: '4px',
-          border: '1px solid #eee',
-        }}>
-          <p style={{ margin: '0 0 4px 0' }}>🟢 Completed: {stats.completedCount}</p>
-          <p style={{ margin: '0' }}>🔴 Missed: {stats.missedCount}</p>
+        <div className="stats-panel">
+          <div className="stats-row">
+            <span>🟢 Completed</span>
+            <span style={{ color: "var(--green)", fontWeight: 600 }}>{stats.completedCount}</span>
+          </div>
+          <div className="stats-row">
+            <span>🔴 Missed</span>
+            <span style={{ color: "var(--red)", fontWeight: 600 }}>{stats.missedCount}</span>
+          </div>
         </div>
       )}
     </div>

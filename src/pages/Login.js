@@ -25,32 +25,29 @@ function Login() {
   };
 
   return (
-    <div style={{ display: "flex", justifyContent: "center", alignItems: "center", height: "100vh", background: "#f5f5f5" }}>
-      <div style={{ background: "white", padding: "40px", borderRadius: "8px", boxShadow: "0 2px 10px rgba(0,0,0,0.1)", width: "360px" }}>
-        <h2 style={{ textAlign: "center", marginBottom: "24px" }}>
+    <div className="login-page">
+      <div className="login-card">
+        <h2 className="login-title">
           {isRegister ? "Create Account" : "Daily Work Tracker"}
         </h2>
-        {error && <p style={{ color: "red", textAlign: "center" }}>{error}</p>}
+        {error && <p className="error-msg">{error}</p>}
         <form onSubmit={handleSubmit}>
           {isRegister && (
-            <input type="text" placeholder="Full Name" value={name}
-              onChange={(e) => setName(e.target.value)}
-              style={{ width: "100%", padding: "10px", marginBottom: "12px", borderRadius: "4px", border: "1px solid #ddd", boxSizing: "border-box" }} />
+            <input className="login-input" type="text" placeholder="Full Name" value={name}
+              onChange={(e) => setName(e.target.value)} />
           )}
-          <input type="email" placeholder="Email" value={email}
-            onChange={(e) => setEmail(e.target.value)}
-            style={{ width: "100%", padding: "10px", marginBottom: "12px", borderRadius: "4px", border: "1px solid #ddd", boxSizing: "border-box" }} />
-          <input type="password" placeholder="Password" value={password}
-            onChange={(e) => setPassword(e.target.value)}
-            style={{ width: "100%", padding: "10px", marginBottom: "16px", borderRadius: "4px", border: "1px solid #ddd", boxSizing: "border-box" }} />
-          <button type="submit" style={{ width: "100%", padding: "10px", background: "#1976d2", color: "white", border: "none", borderRadius: "4px", cursor: "pointer", fontSize: "16px" }}>
-            {isRegister ? "Register" : "Login"}
+          <input className="login-input" type="email" placeholder="Email" value={email}
+            onChange={(e) => setEmail(e.target.value)} />
+          <input className="login-input" type="password" placeholder="Password" value={password}
+            onChange={(e) => setPassword(e.target.value)} />
+          <button type="submit" className="login-btn">
+            {isRegister ? "Register" : "Sign in"}
           </button>
         </form>
-        <p style={{ textAlign: "center", marginTop: "16px" }}>
+        <p className="login-switch">
           {isRegister ? "Already have an account? " : "No account? "}
-          <span onClick={() => setIsRegister(!isRegister)} style={{ color: "#1976d2", cursor: "pointer" }}>
-            {isRegister ? "Login" : "Register"}
+          <span onClick={() => setIsRegister(!isRegister)}>
+            {isRegister ? "Sign in" : "Register"}
           </span>
         </p>
       </div>
