@@ -3,6 +3,7 @@ package com.ojitha.tracker.service;
 import com.ojitha.tracker.dto.TaskRequest;
 import com.ojitha.tracker.dto.TaskResponse;
 import com.ojitha.tracker.dto.TaskStatsResponse;
+import com.ojitha.tracker.dto.WeeklyReportResponse;
 import com.ojitha.tracker.entity.Task;
 import com.ojitha.tracker.entity.TaskHistory;
 import com.ojitha.tracker.entity.TaskHistory.TaskStatus;
@@ -16,7 +17,10 @@ import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
 import java.time.LocalTime;
+import java.time.DayOfWeek;
+import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 @Service
@@ -82,6 +86,30 @@ public class TaskService {
                 .filter(h -> h.getStatus() == TaskStatus.MISSED)
                 .count();
         return new TaskStatsResponse(task.getId(), task.getTitle(), completedCount, missedCount);
+    }
+
+    public List<WeeklyReportResponse> getWeeklyReport(String email) {
+        User user = userRepository.findByEmail(email)
+                .orElseThrow(() -> new UsernameNotFoundException("User not found"));
+        LocalDate today = LocalDate.now();
+        LocalDate startOfWeek = today.with(DayOfWeek.MONDAY);
+        List<Task> tasks = taskRepository.findByUserIdAndActiveTrue(user.getId());
+        return tasks.stream().map(task -> {
+            List<TaskHistory> history = taskHistoryRepository
+                    .findByTaskIdAndDateBetween(task.getId(), startOfWeek, today);
+            Map<String, String> dailyStatus = new LinkedHashMap<>();
+            for (int i = 0; i < 7; i++) {
+                LocalDate day = startOfWeek.plusDays(i);
+                String dayName = day.getDayOfWeek().toString().substring(0, 3);
+                String status = history.stream()
+                        .filter(h -> h.getDate().equals(day))
+                        .map(h -> h.getStatus().toString())
+                        .findFirst()
+                        .orElse(day.isAfter(today) ? "FUTURE" : "PENDING");
+                dailyStatus.put(dayName, status);
+            }
+            return new WeeklyReportResponse(task.getTitle(), task.getId(), dailyStatus);
+        }).collect(Collectors.toList());
     }
 
     private TaskStatus computeStatus(Task task) {

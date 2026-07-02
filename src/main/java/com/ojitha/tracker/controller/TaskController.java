@@ -3,6 +3,7 @@ package com.ojitha.tracker.controller;
 import com.ojitha.tracker.dto.TaskRequest;
 import com.ojitha.tracker.dto.TaskResponse;
 import com.ojitha.tracker.dto.TaskStatsResponse;
+import com.ojitha.tracker.dto.WeeklyReportResponse;
 import com.ojitha.tracker.service.TaskService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -38,5 +39,10 @@ public class TaskController {
     @GetMapping("/{id}/stats")
     public ResponseEntity<TaskStatsResponse> getTaskStats(@PathVariable Long id, @AuthenticationPrincipal UserDetails userDetails) {
         return ResponseEntity.ok(taskService.getTaskStats(id, userDetails.getUsername()));
+    }
+
+    @GetMapping("/weekly")
+    public ResponseEntity<List<WeeklyReportResponse>> getWeeklyReport(@AuthenticationPrincipal UserDetails userDetails) {
+        return ResponseEntity.ok(taskService.getWeeklyReport(userDetails.getUsername()));
     }
 }
