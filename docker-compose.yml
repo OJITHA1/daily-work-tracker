@@ -1,0 +1,27 @@
+services:
+  postgres:
+    image: postgres:16
+    container_name: tracker_db
+    environment:
+      POSTGRES_DB: daily_work_tracker
+      POSTGRES_USER: tracker_user
+      POSTGRES_PASSWORD: tracker_pass123
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+  backend:
+    build: .
+    container_name: tracker_backend
+    ports:
+      - "8080:8080"
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:postgresql://postgres:5432/daily_work_tracker
+      SPRING_DATASOURCE_USERNAME: tracker_user
+      SPRING_DATASOURCE_PASSWORD: tracker_pass123
+      JWT_SECRET: 5367566B59703373367639792F423F4528482B4D6251655468576D5A71347437
+      JWT_EXPIRATION: 86400000
+    depends_on:
+      - postgres
+volumes:
+  postgres_data:
